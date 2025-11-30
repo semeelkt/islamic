@@ -111,13 +111,13 @@ function logout() {
     }
 }
 
-// Load Blogs - From Admin Panel
+// Load Blogs - From Database
 function loadBlogs() {
     const blogsContainer = document.querySelector('.blog-grid');
     if (!blogsContainer) return;
 
-    // Get blogs from localStorage (added by admin)
-    const blogs = JSON.parse(localStorage.getItem('blogs')) || [];
+    // Get blogs from database
+    const blogs = DB.blogs.get();
 
     blogsContainer.innerHTML = '';
 
@@ -248,43 +248,13 @@ function initializeNewsletter() {
     }
 }
 
-// Load Featured Articles - From Admin Panel or Sample Data
+// Load Featured Articles - From Database
 function loadFeaturedArticles() {
     const articlesContainer = document.querySelector('.article-grid');
     if (!articlesContainer) return;
 
-    // Get articles from localStorage (added by admin) or use sample data
-    let articles = JSON.parse(localStorage.getItem('articles')) || [];
-    
-    // If no articles from admin, use sample data
-    if (articles.length === 0) {
-        articles = [
-            {
-                id: 1,
-                title: 'Understanding the Basics of Tawheed',
-                category: 'Aqeedah',
-                author: 'Islamic Scholars',
-                content: 'Explore the fundamental concept of Islamic monotheism...',
-                date: new Date().toLocaleDateString()
-            },
-            {
-                id: 2,
-                title: 'The Importance of Seeking Knowledge',
-                category: 'Education',
-                author: 'Education Team',
-                content: 'Learn about the significance of education in Islam...',
-                date: new Date().toLocaleDateString()
-            },
-            {
-                id: 3,
-                title: 'Prophetic Guidance in Daily Life',
-                category: 'Hadith',
-                author: 'Hadith Scholars',
-                content: 'Practical lessons from the Sunnah for modern times...',
-                date: new Date().toLocaleDateString()
-            }
-        ];
-    }
+    // Get articles from database
+    const articles = DB.articles.get();
 
     // Clear existing content
     articlesContainer.innerHTML = '';

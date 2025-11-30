@@ -672,27 +672,7 @@
     <script>
         // Initialize data storage
         function initializeData() {
-            if (!localStorage.getItem('articles')) {
-                localStorage.setItem('articles', JSON.stringify([]));
-            }
-            if (!localStorage.getItem('blogs')) {
-                localStorage.setItem('blogs', JSON.stringify([]));
-            }
-            if (!localStorage.getItem('users')) {
-                localStorage.setItem('users', JSON.stringify([{
-                    username: 'SEMEELKT',
-                    role: 'Admin',
-                    joinDate: new Date().toLocaleDateString()
-                }]));
-            }
-            if (!localStorage.getItem('categories')) {
-                localStorage.setItem('categories', JSON.stringify([
-                    { name: 'Quran', description: 'Qur\'anic studies and interpretations' },
-                    { name: 'Hadith', description: 'Teachings of Prophet Muhammad' },
-                    { name: 'Fiqh', description: 'Islamic jurisprudence' },
-                    { name: 'Islamic History', description: 'Rich Islamic heritage' }
-                ]));
-            }
+            DB.init();
         }
 
         // Check authentication
@@ -748,18 +728,13 @@
         document.getElementById('articleForm')?.addEventListener('submit', function(e) {
             e.preventDefault();
             const article = {
-                id: Date.now(),
                 title: document.getElementById('articleTitle').value,
                 category: document.getElementById('articleCategory').value,
                 author: document.getElementById('articleAuthor').value,
-                content: document.getElementById('articleContent').value,
-                date: new Date().toLocaleDateString()
+                content: document.getElementById('articleContent').value
             };
             
-            let articles = JSON.parse(localStorage.getItem('articles'));
-            articles.push(article);
-            localStorage.setItem('articles', JSON.stringify(articles));
-            
+            DB.articles.add(article);
             closeModal('articleModal');
             loadArticles();
             updateDashboard();
@@ -767,7 +742,7 @@
         });
 
         function loadArticles() {
-            const articles = JSON.parse(localStorage.getItem('articles'));
+            const articles = DB.articles.get();
             const tbody = document.getElementById('articlesTableBody');
             tbody.innerHTML = '';
             
@@ -799,9 +774,7 @@
 
         function deleteArticle(id) {
             if (confirm('Are you sure you want to delete this article?')) {
-                let articles = JSON.parse(localStorage.getItem('articles'));
-                articles = articles.filter(a => a.id !== id);
-                localStorage.setItem('articles', JSON.stringify(articles));
+                DB.articles.delete(id);
                 loadArticles();
                 updateDashboard();
                 showSuccess('articleSuccessMessage', 'Article deleted successfully!');
@@ -812,17 +785,12 @@
         document.getElementById('blogForm')?.addEventListener('submit', function(e) {
             e.preventDefault();
             const blog = {
-                id: Date.now(),
                 title: document.getElementById('blogTitle').value,
                 author: document.getElementById('blogAuthor').value,
-                content: document.getElementById('blogContent').value,
-                date: new Date().toLocaleDateString()
+                content: document.getElementById('blogContent').value
             };
             
-            let blogs = JSON.parse(localStorage.getItem('blogs'));
-            blogs.push(blog);
-            localStorage.setItem('blogs', JSON.stringify(blogs));
-            
+            DB.blogs.add(blog);
             closeModal('blogModal');
             loadBlogs();
             updateDashboard();
@@ -830,7 +798,7 @@
         });
 
         function loadBlogs() {
-            const blogs = JSON.parse(localStorage.getItem('blogs'));
+            const blogs = DB.blogs.get();
             const tbody = document.getElementById('blogsTableBody');
             tbody.innerHTML = '';
             
@@ -861,9 +829,7 @@
 
         function deleteBlog(id) {
             if (confirm('Are you sure you want to delete this blog?')) {
-                let blogs = JSON.parse(localStorage.getItem('blogs'));
-                blogs = blogs.filter(b => b.id !== id);
-                localStorage.setItem('blogs', JSON.stringify(blogs));
+                DB.blogs.delete(id);
                 loadBlogs();
                 updateDashboard();
                 showSuccess('blogSuccessMessage', 'Blog deleted successfully!');
@@ -875,21 +841,18 @@
             e.preventDefault();
             const user = {
                 username: document.getElementById('userName').value,
-                role: document.getElementById('userRole').value,
-                joinDate: new Date().toLocaleDateString()
+                email: '',
+                role: document.getElementById('userRole').value
             };
             
-            let users = JSON.parse(localStorage.getItem('users'));
-            users.push(user);
-            localStorage.setItem('users', JSON.stringify(users));
-            
+            DB.users.add(user);
             closeModal('userModal');
             loadUsers();
             updateDashboard();
         });
 
         function loadUsers() {
-            const users = JSON.parse(localStorage.getItem('users'));
+            const users = DB.users.get();
             const tbody = document.getElementById('usersTableBody');
             tbody.innerHTML = '';
             
@@ -907,7 +870,7 @@
                         <td>${user.role}</td>
                         <td>${user.joinDate}</td>
                         <td>
-                            ${user.username !== 'SEMEELKT' ? `<button class="btn btn-danger btn-sm" onclick="deleteUser('${user.username}')">Delete</button>` : '<span style="color: #999;">Main Admin</span>'}
+                            ${user.username !== 'SEMEELKT' ? `<button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id})">Delete</button>` : '<span style="color: #999;">Main Admin</span>'}
                         </td>
                     `;
                     tbody.appendChild(row);
@@ -915,11 +878,9 @@
             }
         }
 
-        function deleteUser(username) {
+        function deleteUser(id) {
             if (confirm('Are you sure you want to delete this user?')) {
-                let users = JSON.parse(localStorage.getItem('users'));
-                users = users.filter(u => u.username !== username);
-                localStorage.setItem('users', JSON.stringify(users));
+                DB.users.delete(id);
                 loadUsers();
                 updateDashboard();
             }
@@ -933,17 +894,14 @@
                 description: document.getElementById('categoryDesc').value
             };
             
-            let categories = JSON.parse(localStorage.getItem('categories'));
-            categories.push(category);
-            localStorage.setItem('categories', JSON.stringify(categories));
-            
+            DB.categories.add(category);
             closeModal('categoryModal');
             loadCategories();
             updateDashboard();
         });
 
         function loadCategories() {
-            const categories = JSON.parse(localStorage.getItem('categories'));
+            const categories = DB.categories.get();
             const tbody = document.getElementById('categoriesTableBody');
             tbody.innerHTML = '';
             
@@ -954,13 +912,13 @@
                 document.getElementById('noCategories').style.display = 'none';
                 document.getElementById('categoriesTable').style.display = 'table';
                 
-                categories.forEach((category, index) => {
+                categories.forEach((category) => {
                     const row = document.createElement('tr');
                     row.innerHTML = `
                         <td>${category.name}</td>
                         <td>${category.description}</td>
                         <td>
-                            ${index > 3 ? `<button class="btn btn-danger btn-sm" onclick="deleteCategory(${index})">Delete</button>` : '<span style="color: #999;">Default</span>'}
+                            ${category.id > 3007 ? `<button class="btn btn-danger btn-sm" onclick="deleteCategory(${category.id})">Delete</button>` : '<span style="color: #999;">Default</span>'}
                         </td>
                     `;
                     tbody.appendChild(row);
@@ -968,11 +926,9 @@
             }
         }
 
-        function deleteCategory(index) {
+        function deleteCategory(id) {
             if (confirm('Are you sure you want to delete this category?')) {
-                let categories = JSON.parse(localStorage.getItem('categories'));
-                categories.splice(index, 1);
-                localStorage.setItem('categories', JSON.stringify(categories));
+                DB.categories.delete(id);
                 loadCategories();
                 updateDashboard();
             }
@@ -980,10 +936,10 @@
 
         // Update dashboard stats
         function updateDashboard() {
-            document.getElementById('totalArticles').textContent = JSON.parse(localStorage.getItem('articles')).length;
-            document.getElementById('totalBlogs').textContent = JSON.parse(localStorage.getItem('blogs')).length;
-            document.getElementById('totalUsers').textContent = JSON.parse(localStorage.getItem('users')).length;
-            document.getElementById('totalCategories').textContent = JSON.parse(localStorage.getItem('categories')).length;
+            document.getElementById('totalArticles').textContent = DB.articles.get().length;
+            document.getElementById('totalBlogs').textContent = DB.blogs.get().length;
+            document.getElementById('totalUsers').textContent = DB.users.get().length;
+            document.getElementById('totalCategories').textContent = DB.categories.get().length;
         }
 
         // Show success message
@@ -1011,5 +967,7 @@
             }
         });
     </script>
+    <script src="database.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
