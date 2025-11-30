@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Setup Helper - Wuroud Islamic Hub</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-width: 600px;
+            width: 100%;
+            padding: 40px;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .status {
+            background: #f0f0f0;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        .status.success { border-left-color: #28a745; }
+        .status.warning { border-left-color: #ffc107; }
+        .status.error { border-left-color: #dc3545; }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 0;
+            width: 100%;
+        }
+        button:hover { background: #764ba2; }
+        .code {
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        .instructions {
+            margin: 20px 0;
+            line-height: 1.6;
+        }
+        .step {
+            margin: 15px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        .step strong { color: #667eea; }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 Firebase Setup Helper</h1>
+        
+        <div id="modeStatus" class="status warning">
+            📊 Current Mode: <strong id="currentMode">Loading...</strong>
+        </div>
+
+        <div class="instructions">
+            <h3>✅ Quick Setup (1 minute)</h3>
+            <p>Enter your Firebase credentials below to enable cloud database:</p>
+        </div>
+
+        <form id="firebaseForm">
+            <label><strong>API Key:</strong></label>
+            <input type="text" id="apiKey" placeholder="Your API Key" required>
+
+            <label><strong>Project ID:</strong></label>
+            <input type="text" id="projectId" placeholder="Your Project ID" required>
+
+            <label><strong>Auth Domain:</strong></label>
+            <input type="text" id="authDomain" placeholder="project-id.firebaseapp.com" required>
+
+            <label><strong>Storage Bucket:</strong></label>
+            <input type="text" id="storageBucket" placeholder="project-id.appspot.com" required>
+
+            <label><strong>Messaging Sender ID:</strong></label>
+            <input type="text" id="messagingSenderId" placeholder="Your Messaging Sender ID" required>
+
+            <label><strong>App ID:</strong></label>
+            <input type="text" id="appId" placeholder="Your App ID" required>
+
+            <button type="submit">🚀 Enable Firebase</button>
+        </form>
+
+        <div class="step">
+            <strong>Don't have Firebase credentials?</strong>
+            <p>Follow this quick guide:</p>
+            <ol style="margin: 10px 0 10px 20px;">
+                <li>Go to <a href="https://firebase.google.com" target="_blank">firebase.google.com</a></li>
+                <li>Click "Get Started"</li>
+                <li>Create new project named "wuroud-islamic-hub"</li>
+                <li>Create Firestore Database</li>
+                <li>Get your config from Project Settings</li>
+                <li>Paste credentials here</li>
+            </ol>
+        </div>
+
+        <button onclick="switchMode('local')">📱 Use Browser Storage (Local)</button>
+        <button onclick="switchMode('firebase')">☁️ Use Firebase (Cloud)</button>
+        
+        <div class="status" style="margin-top: 20px;">
+            <strong>ℹ️ Info:</strong>
+            <p>Browser Storage = Data visible only in this browser</p>
+            <p>Firebase = Data shared across all accounts & devices</p>
+        </div>
+    </div>
+
+    <script>
+        // Check current mode
+        function updateModeStatus() {
+            const mode = localStorage.getItem('dbMode') || 'local';
+            const statusDiv = document.getElementById('modeStatus');
+            const modeSpan = document.getElementById('currentMode');
+            
+            modeSpan.textContent = mode === 'firebase' ? '☁️ Firebase (Cloud)' : '📱 Browser Storage (Local)';
+            
+            if (mode === 'firebase') {
+                statusDiv.className = 'status success';
+            } else {
+                statusDiv.className = 'status warning';
+            }
+        }
+
+        // Switch mode
+        function switchMode(mode) {
+            if (confirm(`Switch to ${mode === 'firebase' ? 'Firebase' : 'Browser Storage'}?`)) {
+                localStorage.setItem('dbMode', mode);
+                location.reload();
+            }
+        }
+
+        // Handle form submission
+        document.getElementById('firebaseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const config = {
+                apiKey: document.getElementById('apiKey').value,
+                authDomain: document.getElementById('authDomain').value,
+                projectId: document.getElementById('projectId').value,
+                storageBucket: document.getElementById('storageBucket').value,
+                messagingSenderId: document.getElementById('messagingSenderId').value,
+                appId: document.getElementById('appId').value
+            };
+
+            // Save to localStorage
+            localStorage.setItem('firebaseConfig', JSON.stringify(config));
+            localStorage.setItem('dbMode', 'firebase');
+
+            alert('✅ Firebase configured! Redirecting...');
+            location.href = 'index.html';
+        });
+
+        // Load saved config if exists
+        function loadSavedConfig() {
+            const saved = localStorage.getItem('firebaseConfig');
+            if (saved) {
+                const config = JSON.parse(saved);
+                document.getElementById('apiKey').value = config.apiKey || '';
+                document.getElementById('projectId').value = config.projectId || '';
+                document.getElementById('authDomain').value = config.authDomain || '';
+                document.getElementById('storageBucket').value = config.storageBucket || '';
+                document.getElementById('messagingSenderId').value = config.messagingSenderId || '';
+                document.getElementById('appId').value = config.appId || '';
+            } else {
+                // Pre-fill with default credentials
+                document.getElementById('apiKey').value = 'AIzaSyAbdohB61du6uE627zE7suf7kRk9eIw60U';
+                document.getElementById('projectId').value = 'zonera-e4b13';
+                document.getElementById('authDomain').value = 'zonera-e4b13.firebaseapp.com';
+                document.getElementById('storageBucket').value = 'zonera-e4b13.firebasestorage.app';
+                document.getElementById('messagingSenderId').value = '176063306389';
+                document.getElementById('appId').value = '1:176063306389:web:b4dfadc3f89b502eed999c';
+            }
+        }
+
+        // Initialize
+        updateModeStatus();
+        loadSavedConfig();
+    </script>
+</body>
+</html>
