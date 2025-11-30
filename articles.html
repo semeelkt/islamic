@@ -66,51 +66,8 @@
 
     <!-- Articles Grid -->
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Article Card 1 -->
-            <article class="bg-white rounded-lg shadow-md overflow-hidden">
-                <img src="https://via.placeholder.com/600x400" alt="Article thumbnail" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <span class="text-green-700 text-sm font-medium">Qur'an</span>
-                    <h2 class="text-xl font-semibold mt-2 mb-3">Understanding Surah Al-Fatiha</h2>
-                    <p class="text-gray-600 mb-4">Explore the deep meanings and lessons from the opening chapter of the Holy Qur'an...</p>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-500">By Sheikh Abdullah</span>
-                        <a href="#" class="text-green-700 hover:text-green-800">Read More →</a>
-                    </div>
-                </div>
-            </article>
-
-            <!-- Article Card 2 -->
-            <article class="bg-white rounded-lg shadow-md overflow-hidden">
-                <img src="https://via.placeholder.com/600x400" alt="Article thumbnail" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <span class="text-green-700 text-sm font-medium">Hadith</span>
-                    <h2 class="text-xl font-semibold mt-2 mb-3">The Importance of Good Character</h2>
-                    <p class="text-gray-600 mb-4">Learn about the emphasis Islam places on good character through authentic hadith...</p>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-500">By Dr. Ahmad</span>
-                        <a href="#" class="text-green-700 hover:text-green-800">Read More →</a>
-                    </div>
-                </div>
-            </article>
-
-            <!-- Article Card 3 -->
-            <article class="bg-white rounded-lg shadow-md overflow-hidden">
-                <img src="https://via.placeholder.com/600x400" alt="Article thumbnail" class="w-full h-48 object-cover">
-                <div class="p-6">
-                    <span class="text-green-700 text-sm font-medium">Fiqh</span>
-                    <h2 class="text-xl font-semibold mt-2 mb-3">Understanding Prayer Times</h2>
-                    <p class="text-gray-600 mb-4">A comprehensive guide to understanding and calculating Islamic prayer times...</p>
-                    <div class="flex items-center justify-between">
-                        <span class="text-sm text-gray-500">By Ustadh Ibrahim</span>
-                        <a href="#" class="text-green-700 hover:text-green-800">Read More →</a>
-                    </div>
-                </div>
-            </article>
-
-            <!-- More Article Cards -->
-            <!-- Add more article cards following the same structure -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="articlesGrid">
+            <!-- Articles will be loaded dynamically here -->
         </div>
 
         <!-- Pagination -->
@@ -128,6 +85,63 @@
             </nav>
         </div>
     </main>
+
+    <script>
+        // Load articles dynamically
+        function loadArticlesPage() {
+            let articles = JSON.parse(localStorage.getItem('articles')) || [];
+            
+            // If no articles from admin, use sample data
+            if (articles.length === 0) {
+                articles = [
+                    {
+                        title: 'Understanding Surah Al-Fatiha',
+                        category: 'Qur\'an',
+                        author: 'Sheikh Abdullah',
+                        content: 'Explore the deep meanings and lessons from the opening chapter of the Holy Qur\'an...'
+                    },
+                    {
+                        title: 'The Importance of Good Character',
+                        category: 'Hadith',
+                        author: 'Dr. Ahmad',
+                        content: 'Learn about the emphasis Islam places on good character through authentic hadith...'
+                    },
+                    {
+                        title: 'Understanding Prayer Times',
+                        category: 'Fiqh',
+                        author: 'Ustadh Ibrahim',
+                        content: 'A comprehensive guide to understanding and calculating Islamic prayer times...'
+                    }
+                ];
+            }
+
+            const grid = document.getElementById('articlesGrid');
+            grid.innerHTML = '';
+
+            articles.forEach(article => {
+                const articleCard = document.createElement('article');
+                articleCard.className = 'bg-white rounded-lg shadow-md overflow-hidden';
+                articleCard.innerHTML = `
+                    <div style="width: 100%; height: 12rem; background: linear-gradient(135deg, #198754 0%, #146c43 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 2.5rem;">
+                        <i class="fas fa-book"></i>
+                    </div>
+                    <div class="p-6">
+                        <span class="text-green-700 text-sm font-medium">${article.category}</span>
+                        <h2 class="text-xl font-semibold mt-2 mb-3">${article.title}</h2>
+                        <p class="text-gray-600 mb-4">${article.content.substring(0, 80)}...</p>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">By ${article.author}</span>
+                            <a href="#" class="text-green-700 hover:text-green-800">Read More →</a>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(articleCard);
+            });
+        }
+
+        // Load when page is ready
+        document.addEventListener('DOMContentLoaded', loadArticlesPage);
+    </script>
 
     <!-- Footer -->
     <footer class="bg-gray-800 text-white">

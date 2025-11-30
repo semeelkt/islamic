@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initializeSearch();
     initializeNewsletter();
     loadFeaturedArticles();
+    loadBlogs();
     updateAuthButton();
 });
 
@@ -110,6 +111,48 @@ function logout() {
     }
 }
 
+// Load Blogs - From Admin Panel
+function loadBlogs() {
+    const blogsContainer = document.querySelector('.blog-grid');
+    if (!blogsContainer) return;
+
+    // Get blogs from localStorage (added by admin)
+    const blogs = JSON.parse(localStorage.getItem('blogs')) || [];
+
+    blogsContainer.innerHTML = '';
+
+    if (blogs.length === 0) {
+        blogsContainer.innerHTML = `
+            <div style="grid-column: 1 / -1; text-align: center; padding: 3rem;">
+                <p style="color: #999; font-size: 1.1rem;">No blog posts yet. Check back soon!</p>
+            </div>
+        `;
+        return;
+    }
+
+    blogs.forEach(blog => {
+        const blogElement = document.createElement('article');
+        blogElement.className = 'article-card';
+        blogElement.innerHTML = `
+            <div class="article-image">
+                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #FFD700 0%, #FF8C00 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                    <i class="fas fa-pen-fancy"></i>
+                </div>
+            </div>
+            <div class="article-content">
+                <h3>${blog.title}</h3>
+                <p>${blog.content.substring(0, 100)}...</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: #999; margin-top: 1rem;">
+                    <span><strong>By:</strong> ${blog.author}</span>
+                    <span>${blog.date}</span>
+                </div>
+                <a href="#" class="read-more">Read More</a>
+            </div>
+        `;
+        blogsContainer.appendChild(blogElement);
+    });
+}
+
 // Theme Toggle
 function initializeThemeToggle() {
     const themeToggle = document.querySelector('.theme-toggle');
@@ -205,45 +248,67 @@ function initializeNewsletter() {
     }
 }
 
-// Load Featured Articles
+// Load Featured Articles - From Admin Panel or Sample Data
 function loadFeaturedArticles() {
     const articlesContainer = document.querySelector('.article-grid');
     if (!articlesContainer) return;
 
-    // Sample featured articles data
-    const featuredArticles = [
-        {
-            title: 'Understanding the Basics of Tawheed',
-            category: 'Aqeedah',
-            excerpt: 'Explore the fundamental concept of Islamic monotheism...',
-            image: 'assets/article1.jpg'
-        },
-        {
-            title: 'The Importance of Seeking Knowledge',
-            category: 'Education',
-            excerpt: 'Learn about the significance of education in Islam...',
-            image: 'assets/article2.jpg'
-        },
-        {
-            title: 'Prophetic Guidance in Daily Life',
-            category: 'Hadith',
-            excerpt: 'Practical lessons from the Sunnah for modern times...',
-            image: 'assets/article3.jpg'
-        }
-    ];
+    // Get articles from localStorage (added by admin) or use sample data
+    let articles = JSON.parse(localStorage.getItem('articles')) || [];
+    
+    // If no articles from admin, use sample data
+    if (articles.length === 0) {
+        articles = [
+            {
+                id: 1,
+                title: 'Understanding the Basics of Tawheed',
+                category: 'Aqeedah',
+                author: 'Islamic Scholars',
+                content: 'Explore the fundamental concept of Islamic monotheism...',
+                date: new Date().toLocaleDateString()
+            },
+            {
+                id: 2,
+                title: 'The Importance of Seeking Knowledge',
+                category: 'Education',
+                author: 'Education Team',
+                content: 'Learn about the significance of education in Islam...',
+                date: new Date().toLocaleDateString()
+            },
+            {
+                id: 3,
+                title: 'Prophetic Guidance in Daily Life',
+                category: 'Hadith',
+                author: 'Hadith Scholars',
+                content: 'Practical lessons from the Sunnah for modern times...',
+                date: new Date().toLocaleDateString()
+            }
+        ];
+    }
 
-    // Render featured articles
-    featuredArticles.forEach(article => {
+    // Clear existing content
+    articlesContainer.innerHTML = '';
+
+    // Render articles (show first 3 on homepage, all on articles page)
+    const displayCount = articlesContainer.closest('.featured-articles') ? 3 : articles.length;
+    
+    articles.slice(0, displayCount).forEach(article => {
         const articleElement = document.createElement('article');
         articleElement.className = 'article-card';
         articleElement.innerHTML = `
             <div class="article-image">
-                <img src="${article.image}" alt="${article.title}">
+                <div style="width: 100%; height: 100%; background: linear-gradient(135deg, #198754 0%, #146c43 100%); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem;">
+                    <i class="fas fa-book"></i>
+                </div>
                 <span class="category">${article.category}</span>
             </div>
             <div class="article-content">
                 <h3>${article.title}</h3>
-                <p>${article.excerpt}</p>
+                <p>${article.content.substring(0, 100)}...</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: #999; margin-top: 1rem;">
+                    <span><strong>By:</strong> ${article.author}</span>
+                    <span>${article.date}</span>
+                </div>
                 <a href="#" class="read-more">Read More</a>
             </div>
         `;
