@@ -1,13 +1,24 @@
 // Main JavaScript file for Wuroud Islamic Hub
 
+// Initialize Firebase mode on page load
+(function() {
+    // Enable Firebase by default (it has fallback to localStorage)
+    if (!localStorage.getItem('dbMode')) {
+        localStorage.setItem('dbMode', 'firebase');
+    }
+})();
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Initialize components
-    initializeThemeToggle();
-    initializeSearch();
-    initializeNewsletter();
-    loadFeaturedArticles();
-    loadBlogs();
-    updateAuthButton();
+    // Give Firebase time to initialize if it's loading
+    setTimeout(() => {
+        // Initialize components
+        initializeThemeToggle();
+        initializeSearch();
+        initializeNewsletter();
+        loadFeaturedArticles();
+        loadBlogs();
+        updateAuthButton();
+    }, 500);
 });
 
 // Update Auth Button based on login status
